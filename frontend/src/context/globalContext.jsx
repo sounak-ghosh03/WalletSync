@@ -1,5 +1,4 @@
 import React, { useContext, useState } from "react";
-import axios from "axios";
 
 const BASE_URL = "http://localhost:5000/api/v1/";
 
@@ -10,64 +9,126 @@ export const GlobalProvider = ({ children }) => {
     const [expenses, setExpenses] = useState([]);
     const [error, setError] = useState(null);
 
-    //calculate incomes
+    // Calculate incomes
     const addIncome = async (income) => {
-        const response = await axios
-            .post(`${BASE_URL}add-income`, income)
-            .catch((err) => {
-                setError(err.response.data.message);
+        try {
+            const response = await fetch(`${BASE_URL}add-income`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(income),
             });
-        getIncomes();
+
+            if (!response.ok) {
+                throw new Error("Failed to add income");
+            }
+
+            await getIncomes();
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     const getIncomes = async () => {
-        const response = await axios.get(`${BASE_URL}get-incomes`);
-        setIncomes(response.data);
-        console.log(response.data);
+        try {
+            const response = await fetch(`${BASE_URL}get-incomes`);
+            const data = await response.json();
+            setIncomes(Array.isArray(data) ? data : []);
+            console.log(data);
+        } catch (err) {
+            console.error("Failed to fetch incomes", err);
+            setIncomes([]);
+        }
     };
 
     const deleteIncome = async (id) => {
-        const res = await axios.delete(`${BASE_URL}delete-income/${id}`);
-        getIncomes();
+        try {
+            const response = await fetch(`${BASE_URL}delete-income/${id}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete income");
+            }
+
+            await getIncomes();
+        } catch (err) {
+            console.error("Failed to delete income", err);
+        }
     };
 
     const totalIncome = () => {
-        let totalIncome = 0;
-        incomes.forEach((income) => {
-            totalIncome = totalIncome + income.amount;
-        });
-
-        return totalIncome;
+        let total = 0;
+        if (Array.isArray(incomes)) {
+            incomes.forEach((income) => {
+                total += income.amount;
+            });
+        } else {
+            console.error("incomes is not an array:", incomes);
+        }
+        return total;
     };
 
-    //calculate incomes
-    const addExpense = async (income) => {
-        const response = await axios
-            .post(`${BASE_URL}add-expense`, income)
-            .catch((err) => {
-                setError(err.response.data.message);
+    // Calculate expenses
+    const addExpense = async (expense) => {
+        try {
+            const response = await fetch(`${BASE_URL}add-expense`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(expense),
             });
-        getExpenses();
+
+            if (!response.ok) {
+                throw new Error("Failed to add expense");
+            }
+
+            await getExpenses();
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     const getExpenses = async () => {
-        const response = await axios.get(`${BASE_URL}get-expenses`);
-        setExpenses(response.data);
-        console.log(response.data);
+        try {
+            const response = await fetch(`${BASE_URL}get-expenses`);
+            const data = await response.json();
+            setExpenses(Array.isArray(data) ? data : []);
+            console.log(data);
+        } catch (err) {
+            console.error("Failed to fetch expenses", err);
+            setExpenses([]);
+        }
     };
 
     const deleteExpense = async (id) => {
-        const res = await axios.delete(`${BASE_URL}delete-expense/${id}`);
-        getExpenses();
+        try {
+            const response = await fetch(`${BASE_URL}delete-expense/${id}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete expense");
+            }
+
+            await getExpenses();
+        } catch (err) {
+            console.error("Failed to delete expense", err);
+        }
     };
 
     const totalExpenses = () => {
-        let totalIncome = 0;
-        expenses.forEach((income) => {
-            totalIncome = totalIncome + income.amount;
-        });
-
-        return totalIncome;
+        let total = 0;
+        if (Array.isArray(expenses)) {
+            expenses.forEach((expense) => {
+                total += expense.amount;
+            });
+        } else {
+            console.error("expenses is not an array:", expenses);
+        }
+        return total;
     };
 
     const totalBalance = () => {
