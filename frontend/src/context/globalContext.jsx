@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 
-const BASE_URL = "http://localhost:5000/api/v1/";
+const BASE_URL = "https://walletsync-qf4o.onrender.com/";
 
 const GlobalContext = React.createContext();
 
